@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Dynamic Room Chat</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const socket = io('http://localhost:4000');
+
+      socket.on('connect', () => {
+        console.log('Connected:', socket.id);
+
+        //User here enter his room name and user name
+        const room = prompt('Enter room name:');
+        const username = prompt('Enter your name:');
+        if (room && username) {
+          socket.emit('joinRoom', { room, username });
+        }
+      });
+
+      // To get message from server
+      socket.on('message', (message) => {
+        console.log('Message from server:', message);
+        const messageContainer = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messageContainer.appendChild(messageElement);
+      });
+
+      // to end message
+      document.getElementById('messageForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const message = document.getElementById('messageInput').value;
+        console.log('Sending message:', message);
+        socket.emit('message', message);
+        document.getElementById('messageInput').value = '';
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Socket.IO Room Join Test</h1>
+  <div id="messages"></div>
+  <form id="messageForm">
+    <input type="text" id="messageInput" placeholder="Enter message">
+    <button type="submit">Send</button>
+  </form>
+</body>
+
+</html>
